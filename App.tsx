@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Story, AppState } from './types.ts';
-import Header from './components/Header.tsx';
-import Library from './components/Library.tsx';
-import StoryGenerator from './components/StoryGenerator.tsx';
-import StoryReader from './components/StoryReader.tsx';
-import { getAllStories, saveStoryToDB, deleteStoryFromDB } from './services/storageService.ts';
+import { Story, AppState } from './types';
+import Header from './components/Header';
+import Library from './components/Library';
+import StoryGenerator from './components/StoryGenerator';
+import StoryReader from './components/StoryReader';
+import { getAllStories, saveStoryToDB, deleteStoryFromDB } from './services/storageService';
 
 const App: React.FC = () => {
   const [currentState, setCurrentState] = useState<AppState>(AppState.LIBRARY);
