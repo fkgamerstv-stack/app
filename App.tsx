@@ -1,43 +1,56 @@
 
 import React, { useState, useEffect } from 'react';
-import { Story, AppState, StoryGenerationConfig } from './types';
-import Header from './components/Header';
-import Library from './components/Library';
-import StoryGenerator from './components/StoryGenerator';
-import StoryReader from './components/StoryReader';
+import { Story, AppState } from './types.ts';
+import Header from './components/Header.tsx';
+import Library from './components/Library.tsx';
+import StoryGenerator from './components/StoryGenerator.tsx';
+import StoryReader from './components/StoryReader.tsx';
+import { getAllStories, saveStoryToDB, deleteStoryFromDB } from './services/storageService.ts';
 
 const App: React.FC = () => {
   const [currentState, setCurrentState] = useState<AppState>(AppState.LIBRARY);
   const [stories, setStories] = useState<Story[]>([]);
   const [activeStory, setActiveStory] = useState<Story | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('masal-diyari-stories');
-    if (saved) {
-      setStories(JSON.parse(saved));
-    }
+    const loadStories = async () => {
+      try {
+        const storedStories = await getAllStories();
+        setStories(storedStories.sort((a, b) => b.createdAt - a.createdAt));
+      } catch (error) {
+        console.error("Masallar yüklenirken hata oluştu:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadStories();
   }, []);
 
-  const saveStory = (newStory: Story) => {
-    const updated = [newStory, ...stories];
-    setStories(updated);
-    localStorage.setItem('masal-diyari-stories', JSON.stringify(updated));
+  const handleStoryCreated = async (story: Story) => {
+    try {
+      await saveStoryToDB(story);
+      setStories(prev => [story, ...prev]);
+      setActiveStory(story);
+      setCurrentState(AppState.READING);
+    } catch (error) {
+      console.error("Masal kaydedilirken hata:", error);
+      setActiveStory(story);
+      setCurrentState(AppState.READING);
+    }
   };
 
-  const deleteStory = (id: string) => {
-    const updated = stories.filter(s => s.id !== id);
-    setStories(updated);
-    localStorage.setItem('masal-diyari-stories', JSON.stringify(updated));
+  const deleteStory = async (id: string) => {
+    try {
+      await deleteStoryFromDB(id);
+      setStories(stories.filter(s => s.id !== id));
+    } catch (error) {
+      console.error("Masal silinirken hata:", error);
+    }
   };
 
   const handleStartGenerate = () => {
     setCurrentState(AppState.GENERATING);
-  };
-
-  const handleStoryCreated = (story: Story) => {
-    saveStory(story);
-    setActiveStory(story);
-    setCurrentState(AppState.READING);
   };
 
   const handleOpenStory = (story: Story) => {
@@ -59,32 +72,41 @@ const App: React.FC = () => {
       />
       
       <main className="flex-grow container mx-auto px-4 py-8 relative">
-        {currentState === AppState.LIBRARY && (
-          <Library 
-            stories={stories} 
-            onOpen={handleOpenStory} 
-            onDelete={deleteStory}
-            onStartNew={handleStartGenerate}
-          />
-        )}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-indigo-200 font-kids text-xl">Kitaplık hazırlanıyor...</p>
+          </div>
+        ) : (
+          <>
+            {currentState === AppState.LIBRARY && (
+              <Library 
+                stories={stories} 
+                onOpen={handleOpenStory} 
+                onDelete={deleteStory}
+                onStartNew={handleStartGenerate}
+              />
+            )}
 
-        {currentState === AppState.GENERATING && (
-          <StoryGenerator 
-            onCancel={handleBackToLibrary} 
-            onComplete={handleStoryCreated} 
-          />
-        )}
+            {currentState === AppState.GENERATING && (
+              <StoryGenerator 
+                onCancel={handleBackToLibrary} 
+                onComplete={handleStoryCreated} 
+              />
+            )}
 
-        {currentState === AppState.READING && activeStory && (
-          <StoryReader 
-            story={activeStory} 
-            onBack={handleBackToLibrary} 
-          />
+            {currentState === AppState.READING && activeStory && (
+              <StoryReader 
+                story={activeStory} 
+                onBack={handleBackToLibrary} 
+              />
+            )}
+          </>
         )}
       </main>
 
-      <footer className="py-4 text-center text-blue-400 text-sm">
-        © 2024 Masal Diyarı - Yapay Zeka ile Büyülü Hikayeler
+      <footer className="py-6 text-center text-indigo-400/60 text-sm font-medium">
+        ✨ Masal Diyarı - Hayallerin Gerçekleştiği Yer ✨
       </footer>
     </div>
   );

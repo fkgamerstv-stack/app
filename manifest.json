@@ -1,0 +1,17 @@
+
+{
+  "short_name": "Masal Diyarı",
+  "name": "Masal Diyarı - Çocuklar İçin Büyülü Kitaplık",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3502/3502460.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1a1a2e",
+  "background_color": "#1a1a2e"
+}

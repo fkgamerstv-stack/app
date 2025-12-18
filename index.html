@@ -3,7 +3,11 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="manifest.json">
     <title>Masal Diyarı - Çocuklar İçin Büyülü Kitaplık</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Quicksand:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -13,6 +17,10 @@
             background: radial-gradient(circle at top right, #2d1b4e 0%, #1a1a2e 100%);
             color: #f8fafc;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
         .font-kids {
             font-family: 'Comic Neue', cursive;
@@ -33,10 +41,14 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 8px; }
+        button, a, input, select {
+            touch-action: manipulation;
+        }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #1a1a2e; }
         ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+        .safe-pt { padding-top: env(safe-area-inset-top); }
     </style>
 <script type="importmap">
 {
